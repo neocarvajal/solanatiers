@@ -15,9 +15,11 @@ El programa implementa un ciclo de vida completo (CRUD) para la economía de cre
 [1000000000, 2000000000, 3000000000, 4000000000]
 ```
 
+![SolanaTiers Subs](./images/creator-solanatiers.png)
+
 * **Suscripciones Dinámicas:** Los usuarios pueden tener múltiples suscripciones a un mismo creador diferenciadas por un `index`.
 
-![SolanaTiers Banner](./images/creators-solanatiers.png)
+![SolanaTiers Subs](./images/creators-solanatiers.png)
 
 * **Upgrade Inteligente:** Permite subir de nivel pagando únicamente la diferencia (pro-rateo) entre el tier actual y el nuevo.
 * **Gestión de Renta:** Cierre de cuentas con devolución automática de SOL (rent-exempt) al suscriptor o al creador.
