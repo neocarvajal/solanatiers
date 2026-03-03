@@ -1,86 +1,58 @@
-# Primeros pasos en Solana
-![Banner](./images/SolanaBanner.jpg)
-Solana es una blockchain de capa 1, es decir, cuenta con su propia infraestructura y no depende de otras blockchains para funcionar. Se encuentra orientada al alto rendimiento, y fue creada para soportar aplicaciones descentralizadas a gran escala con costos mínimos y confirmaciones casi inmediatas. Su diseño prioriza la eficiencia en la ejecución y la paralelización de transacciones.
+  # 🚀 SolanaTiers — Protocolo de Suscripciones Descentralizadas
 
-Rust es el lenguaje principal para desarrollar programas en Solana. A través de él se implementa la lógica on-chain utilizando el modelo de cuentas y programas de la red, permitiendo construir contratos inteligentes seguros, eficientes y altamente optimizables.
+![SolanaTiers Banner](./images/solanatiers.png)
 
-Puedes comenzar dándole Fork a este repositorio (abajo te explicamos como 👇)
+**SolanaTiers** es un programa on-chain desarrollado en **Rust** con el framework **Anchor**. Permite a creadores de contenido monetizar su trabajo mediante un sistema de niveles (tiers) de acceso, donde cada suscripción es una **PDA (Program Derived Address)** única y segura.
 
-Asegúrate de clonar este repositorio a tu cuenta usando el botón **`Fork`**.
+## 📌 Funcionalidades Principales
 
-![fork](./images/fork.png)
+El programa implementa un ciclo de vida completo (CRUD) para la economía de creadores:
 
-* Puedes renombrar el repositorio a lo que sea que se ajuste con tu proyecto.
+* **Configuración de Creador:** Inicializa precios personalizados para 4 niveles de suscripción.
+* **Suscripciones Dinámicas:** Los usuarios pueden tener múltiples suscripciones a un mismo creador diferenciadas por un `index`.
+![SolanaTiers Banner](./images/creators-solanatiers.png)
 
-## Solana Playground
-Solana Playground es un entorno de desarrollo online que permite escribir, compilar, desplegar y probar programas de Solana directamente desde el navegador, sin necesidad de instalar herramientas locales como Rust, Solana CLI o Anchor.
+* **Upgrade Inteligente:** Permite subir de nivel pagando únicamente la diferencia (pro-rateo) entre el tier actual y el nuevo.
+* **Gestión de Renta:** Cierre de cuentas con devolución automática de SOL (rent-exempt) al suscriptor o al creador.
+* **Auditoría On-Chain:** Sistema de verificación de acceso mediante logs para validar permisos en tiempo real.
 
-![Playground](./images/playground.png)
+---
 
-Para abrir el **Playground** solo es necesario dar clic 👉 [Aquí](https://beta.solpg.io)
+## 🏗️ Arquitectura de Datos
 
-## Configuración del entorno
 
-Primero conectaremos el entorno con la devnet, lo que tambien procederá a la creación de una wallet. Para eso daremos clic en donde dice **Not Conected**:
 
-![playground1](./images/playground1.png)
+### PDAs (Program Derived Addresses)
 
-Saldrá la siguiente ventana donde daremos en el botón **Continue**:
+| Cuenta | Semillas (Seeds) | Descripción |
+| :--- | :--- | :--- |
+| **CreatorConfig** | `["creator", authority_pubkey]` | Almacena precios y la wallet de cobro del creador. |
+| **UserSubscription** | `["user", user_pubkey, creator_pubkey, index]` | Almacena el tier actual y los metadatos del suscriptor. |
 
-![wallet](./images/wallet.png)
+---
 
-Como resultado se mostrará la siguiente información:
+## ⚙️ Instrucciones del Programa
 
-![status](./images/status.png)
+### 1. Gestión del Creador
+* **`initialize_creator(tier_prices)`**: Establece los precios para los Tiers 1, 2 y 3 (el índice 0 del array es el precio base).
+* **`delete_creator_config()`**: Cierra la cuenta de configuración y recupera el SOL depositado en la renta. Solo el `authority` puede ejecutarlo.
 
-* En verde: el estado de la conexión y el entorno al que se encuentra conectado
+### 2. Ciclo del Suscriptor
+* **`subscribe(tier, index)`**: Crea una nueva suscripción. Realiza una transferencia de SOL nativo desde el suscriptor directamente a la wallet del creador.
+* **`upgrade_tier(new_tier, index)`**: Verifica que el nuevo tier sea superior al actual, calcula la diferencia de precio y procesa el pago adicional.
+* **`cancel_subscription(index)`**: El usuario puede dar de baja su suscripción en cualquier momento, eliminando la PDA y recuperando su SOL de renta.
 
-* En amarillo: la la dirección de la wallet conectada
+### 3. Seguridad y Acceso
+* **`check_access(required_tier)`**: Compara el tier de la cuenta con el requisito solicitado. Devuelve un booleano y emite un log detallado del estado de la suscripción.
 
-* En azul: la cantidad de tokens en la wallet
+---
 
-> ℹ️ ¿Quieres ver el ejemplo de un "Hola Mundo" en Solana?. Da clic aquí: 👉 [Ver Ejemplo](./build-deploy/README.md)
+## 🔐 Lógica de Validación (Seguridad)
 
-> ℹ️ ¿Cuentas con una Wallet de [Phantom](https://phantom.com/) que deseas importar?, Da clic aquí para ver como hacerlo: 
+El programa incluye guardias de seguridad para proteger los fondos y la integridad de los datos:
 
-👉 [Como Importar una Wallet](./import-key-a-playground/README.md)
+* **Constraint `has_one`**: Garantiza que solo el suscriptor original pueda modificar o cancelar su propia suscripción.
+* **Validación de Tier**: Evita suscripciones a niveles inexistentes (Tier 0 bloqueado) o intentos de bajar de categoría (Downgrades) sin la lógica correspondiente.
+* **Cálculo de Diferencial**: Protege al creador asegurando que los Upgrades siempre completen el pago del valor total del nuevo nivel.
 
-## ¿Listo para empezar?
-
-El primer paso es hacer `fork` al repositorio. Ya con el repositorio en tu cuenta lo siguiente que debes hacer es entrar a la carpeta `proyecto` y obtener el `permalink`:
-
-![permalink](./images/permalink.png)
-
-El cual uniremos con el siguiente enlace en nuestro navegador de preferencia:
-
-```url
-https://beta.solpg.io/
-```
-
-Lo que nos dará algo parecido a:
-
-![url](./images/url.png)
-
-Al pulsar enter seremos enviados al `Solana Playground` con nuestro proyecto abierto:
-
-![pg](./images/pg.png)
-
-Para guardarlo solo damos clic en el boton `import` y asignamos un nombre:
-
-![import](./images/import.png)
-
-## ¿Como actualizo mi repositorio?
-
-Una vez que realices cambios o termines tu proyecto, es necesario que **copies todo el código**, ya con el código en el portapapeles nos dirigimos nuevamente a la carpeta proyecto de tu repositorio de github **donde se obtuvo el `permalink`**, donde entraremos al carpeta `src` y al archivo `lib.rs`:
-
-![edit](./images/edit.png)
-
-En `lib.rs` presionaremos el ícono en forma de lapiz (esquina superior derecha de la imagen 👆)
-
-Nuevamente seleccionamos todo el código pero ahora presionamos `ctrl + v` para pegar el código del `Playground`. Ya realizados los cambios presionamos el botón `Commit changes`:
-
-![commit](./images/commit.png)
-
-Nos aparecerá un menú de confirmación donde nuevamente presionamos el botón `Commit changes`:
-
-![commit2](./images/commit2.png)
+---
