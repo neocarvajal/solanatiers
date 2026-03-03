@@ -9,6 +9,12 @@
 El programa implementa un ciclo de vida completo (CRUD) para la economía de creadores:
 
 * **Configuración de Creador:** Inicializa precios personalizados para 4 niveles de suscripción.
+  Copia este array para configurar precios de 1, 2, 3 y 4 SOL respectivamente:
+
+```json
+[1000000000, 2000000000, 3000000000, 4000000000]
+```
+
 * **Suscripciones Dinámicas:** Los usuarios pueden tener múltiples suscripciones a un mismo creador diferenciadas por un `index`.
 
 ![SolanaTiers Banner](./images/creators-solanatiers.png)
