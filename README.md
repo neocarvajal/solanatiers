@@ -1,6 +1,6 @@
   # 🚀 SolanaTiers — Protocolo de Suscripciones Descentralizadas
 
-![SolanaTiers Banner](./images/solanatiers.png)
+![SolanaTiers Banner](./images/solanatiers-banner.png)
 
 **SolanaTiers** es un programa on-chain desarrollado en **Rust** con el framework **Anchor**. Permite a creadores de contenido monetizar su trabajo mediante un sistema de niveles (tiers) de acceso, donde cada suscripción es una **PDA (Program Derived Address)** única y segura.
 
